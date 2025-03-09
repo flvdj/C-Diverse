@@ -1,0 +1,155 @@
+#include<iostream>
+#include<string>
+using namespace std;
+
+class Persoana
+{
+protected:
+	string nume;
+	unsigned int annas;
+public:
+	Persoana() = default;
+	Persoana(string nume1,unsigned int annas1)
+	{
+		nume = nume1;
+		annas = annas1;
+	}
+};
+
+class Profesor : public Persoana
+{
+protected:
+	unsigned int nrc;
+	int id[11];
+public:
+	Profesor() = default;
+	friend istream& operator>>(istream& is, Profesor& p);
+};
+
+istream& operator>>(istream& is, Profesor& p)
+{
+	is >> p.nume >> p.annas>>p.nrc;
+	for (int i = 0; i <= 10; i++)
+		p.id[i] = 0;
+	string idcurs;
+	for (int i = 0; i < p.nrc; i++)
+	{
+		int nr = 0;
+		cin >> idcurs;
+		nr = (int)idcurs[5]-48;
+		p.id[nr] = 1;
+	}
+	return is;
+}
+
+
+class Student : public Persoana
+{
+	unsigned int anlic;
+	unsigned int nrc;
+	int id2[31];
+	int nota[31];
+public:
+	Student() = default;
+	friend istream& operator>>(istream& is, Student& s);
+
+	int getid(int i)
+	{
+		if (id2[i] == 1)
+			return 1;
+		else
+			return 0;
+	}
+	int getnota(int i)
+	{
+		return nota[i];
+	}
+	string getnume()
+	{
+		return nume;
+	}
+};
+istream& operator>>(istream& is, Student& s)
+{
+	is >> s.nume >> s.annas >> s.anlic>>s.nrc;
+	for (int i = 0; i <= 30; i++)
+		s.id2[i] = 0;
+	for (int i = 0; i <= 30; i++)
+		s.nota[i] = 0;
+	string idcurs;
+	for (int i = 0; i < s.nrc; i++)
+	{
+		int nr = 0;
+		cin >> idcurs;
+		nr = (int)idcurs[5] - 48;
+		s.id2[nr] = 1;
+	}
+	for (int i = 0; i <= 10; i++)
+		if (s.id2[i] == 1)
+			cin >> s.nota[i];
+	return is;
+}
+
+class Curs
+{
+private:
+	string ID;
+	string nume;
+	unsigned int puncte_credit;
+	unsigned int an_stud;
+public:
+	Curs() = default;
+	friend istream& operator>>(istream& is, Curs& c);
+
+	int getid()
+	{
+		int id = (int)ID[5] - 48;
+		return id;
+	}
+	int getCredit()
+	{
+		return puncte_credit;
+	}
+};
+
+istream& operator>>(istream& is, Curs& c)
+{
+	is >> c.ID >> c.nume >>c.puncte_credit >> c.an_stud;
+	return is;
+}
+
+int main()
+{
+	int n;
+	cin >> n;
+	Profesor* Prof = new Profesor[n];
+	for (int i = 0; i < n; i++)
+		cin >> Prof[i];
+	int m;
+	cin >> m;
+	Student* Stud = new Student[m];
+	for (int i = 0; i < m; i++)
+		cin >> Stud[i];
+	int k;
+	cin >> k;
+	Curs* Crs = new Curs[k];
+	for (int i = 0; i < k; i++)
+		cin >> Crs[i];
+	for (int i = 0; i < m; i++)
+	{
+		int punct_total = 0;
+		for (int j = 0; j <= 30; j++)
+		{
+			if (Stud[i].getid(j) == 1 && Stud[i].getnota(j)>=5)
+			{
+				for (int x = 0; x < k; x++)
+					if (Crs[x].getid() == j)
+						punct_total = punct_total + Crs[x].getCredit();
+			}
+		}
+		if (punct_total < 20)
+		{
+			cout << Stud[i].getnume() << " ";
+		}
+	}
+}
