@@ -1,0 +1,575 @@
+Clasa de baza Disciplina
+
+Derivam clasele: DisciplinaExamen, DisciplinaVerficare, DisciplinaAdmisRespins.
+
+ 
+
+În funcția main() se definește un catalogStudent care continue diverse discipline pentru ca la final de an se va calcula media generala. Daca nu are nota/calificativ/condiție promovare, este trecut cu DIFERENTA
+
+Pentru DisciplinaExamen : evaluare parțial, aplicații (laborator/seminar) evaluare in timpul anului + colocviu, teme de casa, examen in sesiune => nota. Condiție de promovare: nota laborator>=50% nota examen >=50%
+
+Pentru DisciplinaVerificare : aplicații (laborator/seminar) evaluare in timpul anului + colocviu + teme de casa, evaluare la curs in timpul anului si finala => nota. Condiție de promovare: nota laborator>=50% nota fiecare verificare >=50%
+
+Pentru DisciplinaAdmisRespins: aplicații (laborator/seminar) evaluare in timpul anului + colocviu + teme de casa, evaluare la curs in timpul anului si finala => calificativ (admis/respins). Condiție de promovare: nota laborator>=50% nota fiecare verificare >=50%
+
+Clasa Disciplina, membri: numeDisc, pctLab, pctTema, pctExamen
+
+calculNota()=0 
+
+Clasa DisiplinaExamen, membri:, pctPartial, nrLaboratoare, noteLaborator, nrTeme, noteTeme, noteEx
+
+calculMedie()
+
+Clasa DisiplinaVerificare, membri: nrLaboratoare, noteLaborator, nrTeme, noteTeme, nrExam, noteExam
+
+calculMedie()
+
+Clasa DisiplinaAdmisRespins, membri:, nrLaboratoare, noteLaborator, nrTeme, noteTeme, nrExam, noteExam
+
+calculMedie()
+
+ Ierarhia de clase:
+
+                           Disciplina
+
+                 ↑                                      ↑
+
+DisciplinaVerificare               DisciplinaExamen
+
+                 ↑
+
+DisciplinaAdmisRespins
+
+
+
+Calcul nota disciplina
+
+A) pentru DisciplinaExamen
+laborator = medie laboratoare in timpul anului * 2/3 + 1/3 nota colocviu (ultima)
+tema = media temelor
+Avem diferenta daca:
+Nota colocviu laborator < 4
+Nota examen <5
+Media generala < 5
+
+B) pentru DisciplinaVerificare
+laborator = medie laboratoare 
+tema = media temelor
+examenT = medie verificari in timpul semestrului *2/3 + 1/3 verifcare finala
+Avem diferenta daca:
+Nota nota laborator < 4
+Nota vericare finala < 4
+Media generala < 5
+
+C) pentru DisciplinaAdmisRespins
+laborator = medie laboratoare 
+tema = media temelor
+examenT = medie verificari in timpul semestrului *2/3 + 1/3 verifcare finala
+Avem diferenta daca:
+ Nota nota laborator < 4
+Nota vericare finala < 4
+Media generala < 5
+Obs.:  nu se ia in calculul mediei generale nota obtinuta la aceasta materie
+
+
+Date de intrare:
+ND = numar discipline
+tip_disciplina = {0 pentru DisiciplinaExamen, 1pentru DisciplinaVerificare, 2 pentru DisciplinaAdmisRespins}
+pctLab pctTema pctExamen [pctPartial]   (pctPartial exista numai pentru tip 0)
+nrLab
+sir de nrLab valori
+nrTeme
+sir de nrTeme valori
+[nrExam]  (pentru tip 0 nu exista pentru ca implicit nrExam= 2 , respectiv {Partial , ExamenSesiune}
+sir de nrExam valori
+
+
+// cod tipuri discipline:   0 = DisciplinaExamen,  1= disciplinaVerificare,   2 = DisciplinaAmisRespins
+
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <iomanip>
+
+using namespace std;
+
+class Disciplina
+{
+        string nume;
+    protected:
+        int pLab,pTema,pEx;
+
+    public:
+        Disciplina()=default;
+        Disciplina(string n, int pL, int pT, int pE):nume(n),pLab(pL)
+        {
+            pTema = pT;
+            pEx = pE;
+        }
+        virtual ~Disciplina()
+        {
+        }
+
+        virtual double calculNota()=0;
+
+        string getNume()
+        {
+            return nume;
+        }
+
+        friend istream& operator>>(istream & is, Disciplina& d);
+        friend ostream& operator<<(ostream & os, const Disciplina& d);
+};
+
+istream& operator>>(istream & is, Disciplina& d)
+{
+    is>>d.nume>>d.pLab>>d.pTema>>d.pEx;
+    return is;
+}
+
+ostream& operator<<(ostream & os, const Disciplina& d)
+{
+    os<<d.nume<<endl;
+    os<<d.pLab<<' '<<d.pTema<<' '<<d.pEx<<' ';
+
+    return os;
+}
+
+class DisciplinaExamen : public Disciplina
+{
+        int pPartial;
+        int nrLab, nrTeme;
+        float* noteLab=nullptr;
+        float* noteTeme=nullptr;
+        float noteExam[2]; // [0]=nota partial,  [1]=nota examen
+
+    public:
+        DisciplinaExamen()=default;
+        DisciplinaExamen(string num,int nrL, int nrT, float* noteL, float* noteT, float* note, int pL, int pT, int pE, int pP)
+          : Disciplina(num, pL, pT, pE)
+        {   int i;
+            pPartial = pP;
+
+            nrLab = nrL;
+            noteLab = new float[nrLab];
+            for(i=0; i<nrLab; i++)
+            {
+                noteLab[i] = noteL[i];
+            }
+
+            nrTeme = nrT;
+            noteTeme = new float[nrTeme];
+            for(i=0; i<nrTeme; i++)
+            {
+                noteTeme[i] = noteT[i];
+            }
+
+            for(i=0; i<2; i++)
+            {
+                noteExam[i] = note[i];
+            }
+        }
+
+        DisciplinaExamen(const DisciplinaExamen& d) : Disciplina(d)
+        {   int i;
+
+            pPartial = d.pPartial;
+
+            nrLab = d.nrLab;
+            noteLab = new float[nrLab];
+            for(i=0; i<nrLab; i++)
+            {
+                noteLab[i] = d.noteLab[i];
+            }
+
+            nrTeme = d.nrTeme;
+            noteTeme = new float[nrTeme];
+            for(i=0; i<nrTeme; i++)
+            {
+                noteTeme[i] = d.noteTeme[i];
+            }
+
+            for(i=0; i<2; i++)
+            {
+                noteExam[i] = d.noteExam[i];
+            }
+        }
+
+
+        ~DisciplinaExamen()
+        {
+            if(noteLab)
+                delete[] noteLab;
+            if(noteTeme)
+                delete[] noteTeme;
+        }
+
+        double calculNota()
+        {   int i;
+            double medieL=0;
+            double medieT=0;
+            double nota;
+
+            if( noteLab[nrLab-1] <4 )
+                return 1;
+            if( noteExam[1]<5 )
+                return 1;
+            for(i=0; i<nrLab-1; i++)
+            {
+                medieL += noteLab[i];
+            }
+
+            medieL = medieL/(nrLab-1)*2/3 + noteLab[nrLab-1]/3;
+
+            for(i=0; i<nrTeme; i++)
+            {
+                medieT += noteTeme[i];
+            }
+            medieT /= nrTeme;
+
+            nota = ( medieL * pLab + medieT * pTema + noteExam[0] * pPartial + noteExam[1] * pEx )/100;
+
+            return nota;
+        }
+
+        friend istream& operator>>(istream& is, DisciplinaExamen& d);
+        friend ostream& operator<<(ostream& os, const DisciplinaExamen& d);
+};
+
+istream& operator>>(istream & is, DisciplinaExamen& d)
+{   int i;
+    is>>(Disciplina&)d;
+    is>>d.pPartial;
+
+    is>>d.nrLab;
+    d.noteLab = new float[d.nrLab];
+    for(i=0; i<d.nrLab; i++)
+    {
+        is>>d.noteLab[i];
+    }
+
+    is>>d.nrTeme;
+    d.noteTeme = new float[d.nrTeme];
+    for(i=0; i<d.nrTeme; i++)
+    {
+        is>>d.noteTeme[i];
+    }
+
+    for(i=0; i<2; i++)
+    {
+        is>>d.noteExam[i];
+    }
+
+    return is;
+}
+
+ostream& operator<<(ostream& os, const DisciplinaExamen& d)
+{   int i;
+    os<<(Disciplina&)d;
+    os<<d.pPartial<<endl;
+
+    os<<d.nrLab<<endl;
+    for(i=0; i<d.nrLab; i++)
+    {
+        os<<d.noteLab[i]<<' ';
+    }
+    os<<endl;
+
+    os<<d.nrTeme<<endl;
+    for(i=0; i<d.nrTeme; i++)
+    {
+        os<<d.noteTeme[i]<<' ';
+    }
+    os<<endl;
+
+    for(i=0; i<2; i++)
+    {
+        os<<d.noteExam[i]<<' ';
+    }
+    os<<endl;
+
+    return os;
+}
+
+class DisciplinaVerificare : public Disciplina
+{
+        int nrLab, nrTeme, nrExam;
+        float* noteLab=nullptr;
+        float* noteTeme=nullptr;
+        float* noteExam=nullptr;
+
+    public:
+        DisciplinaVerificare()=default;
+        DisciplinaVerificare(string num,int nrL, int nrT, int nrE, float* noteL, float* noteT, float* note, int pL, int pT, int pE)
+          : Disciplina(num, pL, pT, pE)
+        {   int i;
+
+            nrLab = nrL;
+            noteLab = new float[nrLab];
+            for(i=0; i<nrLab; i++)
+            {
+                noteLab[i] = noteL[i];
+            }
+
+            nrTeme = nrT;
+            noteTeme = new float[nrTeme];
+            for(i=0; i<nrTeme; i++)
+            {
+                noteTeme[i] = noteT[i];
+            }
+
+            nrExam = nrE;
+            noteExam = new float[nrExam];
+            for(i=0; i<nrExam; i++)
+            {
+                noteExam[i] = note[i];
+            }
+        }
+
+        DisciplinaVerificare(const DisciplinaVerificare& d) : Disciplina(d)
+        {
+            int i;
+
+            nrLab = d.nrLab;
+            noteLab = new float[nrLab];
+            for(i=0; i<nrLab; i++)
+            {
+                noteLab[i] = d.noteLab[i];
+            }
+
+            nrTeme = d.nrTeme;
+            noteTeme = new float[nrTeme];
+            for(i=0; i<nrTeme; i++)
+            {
+                noteTeme[i] = d.noteTeme[i];
+            }
+
+            nrExam = d.nrExam;
+            noteExam = new float[nrExam];
+            for(i=0; i<nrExam; i++)
+            {
+                noteExam[i] = d.noteExam[i];
+            }
+        }
+
+        ~DisciplinaVerificare()
+        {
+            if(noteLab)
+                delete[] noteLab;
+            if(noteTeme)
+                delete[] noteTeme;
+            if(noteExam)
+                delete[] noteExam;
+        }
+
+        double calculNota()
+        {   int i;
+            double medieL=0;
+            double medieT=0;
+            double medieEx=0;
+            double nota;
+
+
+            if( noteExam[nrExam-1] < 4 )
+                return 1;
+
+            for(i=0; i<nrLab; i++)
+            {
+                medieL += noteLab[i];
+            }
+
+            medieL = medieL/nrLab;
+
+            if( medieL < 4 )
+                return 1;
+
+            for(i=0; i<nrTeme; i++)
+            {
+                medieT += noteTeme[i];
+            }
+            medieT /= nrTeme;
+
+            for(i=0; i<nrExam-1; i++)
+            {
+                medieEx += noteExam[i];
+            }
+
+            if(nrExam>1)
+                medieEx = medieEx/(nrExam-1)*2/3 + noteExam[nrExam-1]/3;
+            else
+                medieEx = noteExam[nrExam-1];
+
+            nota = ( medieL * pLab + medieT * pTema + medieEx * pEx )/100;
+
+            return nota;
+        }
+
+        friend istream& operator>>(istream& is, DisciplinaVerificare& d);
+        friend ostream& operator<<(ostream& os, const DisciplinaVerificare& d);
+};
+
+istream& operator>>(istream& is, DisciplinaVerificare& d)
+{
+    int i;
+    is>>(Disciplina&)d;
+
+    is>>d.nrLab;
+    d.noteLab = new float[d.nrLab];
+    for(i=0; i<d.nrLab; i++)
+    {
+        is>>d.noteLab[i];
+    }
+
+    is>>d.nrTeme;
+    d.noteTeme = new float[d.nrTeme];
+    for(i=0; i<d.nrTeme; i++)
+    {
+        is>>d.noteTeme[i];
+    }
+
+    is>>d.nrExam;
+    d.noteExam = new float[d.nrExam];
+    for(i=0; i<d.nrExam; i++)
+    {
+        is>>d.noteExam[i];
+    }
+
+    return is;
+}
+
+ostream& operator<<(ostream& os, const DisciplinaVerificare& d)
+{   int i;
+
+    os<<(Disciplina&)d;
+
+    os<<endl<<d.nrLab<<endl;
+    for(i=0; i<d.nrLab; i++)
+    {
+        os<<d.noteLab[i]<<' ';
+    }
+    os<<endl;
+
+    os<<d.nrTeme<<endl;
+    for(i=0; i<d.nrTeme; i++)
+    {
+        os<<d.noteTeme[i]<<' ';
+    }
+    os<<endl;
+
+    os<<d.nrExam<<endl;
+    for(i=0; i<d.nrExam; i++)
+    {
+        os<<d.noteExam[i]<<' ';
+    }
+    os<<endl;
+
+    return os;
+}
+
+
+class DisciplinaAdmisRespins : public DisciplinaVerificare
+{
+    public:
+        DisciplinaAdmisRespins()=default;
+        DisciplinaAdmisRespins(string num,int nrL, int nrT, int nrE, float* noteL, float* noteT, float* note, int pL, int pT, int pE)
+         : DisciplinaVerificare(num, nrL, nrT, nrE, noteL, noteT, note, pL, pT, pE)
+         {
+
+         }
+
+        DisciplinaAdmisRespins(const DisciplinaAdmisRespins& d) : DisciplinaVerificare(d)
+        {
+
+        }
+
+        double calculNota()
+        {
+            double nota = DisciplinaVerificare::calculNota();
+
+            if(nota>=5)
+                return -1; // cod pentru calificativ ADMIS
+            else
+                return -2; // cod pentru calificativ RESPINS   ;  puteam returna  nota
+        }
+
+        friend istream& operator>>(istream& is, DisciplinaAdmisRespins& d);
+        friend ostream& operator<<(ostream& os, const DisciplinaAdmisRespins& d);
+};
+
+istream& operator>>(istream& is, DisciplinaAdmisRespins& d)
+{
+    is>>(DisciplinaVerificare&)d;
+
+    return is;
+}
+
+ostream& operator<<(ostream& os, const DisciplinaAdmisRespins& d)
+{
+    os<<(DisciplinaVerificare&)d;
+
+    return os;
+}
+
+int main()
+{
+    ifstream cin("data.in");
+    int ND, i, tipD;
+    int nrDnota=0;
+    double nota, media=0;
+    bool diferente = false;
+
+    Disciplina* catalog[10]; // Disciplina** catalog;
+
+    cin>>ND;
+    for(i=0;i<ND;i++)
+    {
+        cin>>tipD;
+
+        switch(tipD)
+        {
+            case 0: catalog[i] = new DisciplinaExamen;
+                    cin >> (DisciplinaExamen&)*catalog[i];
+                    cout << (DisciplinaExamen&)*catalog[i];
+                    break;
+            case 1: catalog[i] = new DisciplinaVerificare;
+                    cin >> (DisciplinaVerificare&)*catalog[i];
+                    cout << (DisciplinaVerificare&)*catalog[i];
+                    break;
+            case 2: catalog[i] = new DisciplinaAdmisRespins;
+                    cin >> (DisciplinaAdmisRespins&)*catalog[i];
+                    cout << (DisciplinaAdmisRespins&)*catalog[i];
+                    break;
+        }
+    }
+
+    cout<<endl;
+    for(i=0;i<ND;i++)
+    {
+        nota = catalog[i]->calculNota();
+
+        if(nota == -1)
+            continue;
+        if(nota < 5)
+        {
+            cout<<"Studentul are DIFERENTA la materia: "<<catalog[i]->getNume()<<endl;
+            diferente = true;
+        }
+        else
+        {
+            media += nota;
+            nrDnota++;
+        }
+    }
+
+    media /= nrDnota;
+
+    if(!diferente)
+    {
+        cout<<fixed<<setprecision(2);
+        cout<<"Studentul are media generala: "<<media;
+        cout<<endl;
+    }
+
+    return 0;
+}
