@@ -1,0 +1,90 @@
+#include<iostream>
+using namespace std;
+int main()
+{
+    unsigned short val;
+    cin >> val;
+    unsigned short prev = val, next;
+    int pos = 0, max_pos = 0;
+    bool is_local_max = true;
+    while (val != 0) {
+        cin >> next;
+        if (val > prev && val > next) {
+            cout << pos << " ";
+            max_pos = pos;
+            is_local_max = true;
+        }
+        else {
+            is_local_max = false;
+        }
+        prev = val;
+        val = next;
+        pos++;
+    }
+    if (!is_local_max) {
+        cout << pos - 1 << " ";
+    }
+    cout << endl;
+    int max_dist = 0;
+    cin >> val;
+    prev = val;
+    pos = 0;
+    while (val != 0) {
+        cin >> next;
+        if (val > prev && val > next) {
+            if (pos - max_pos > max_dist) {
+                max_dist = pos - max_pos;
+            }
+            max_pos = pos;
+        }
+        prev = val;
+        val = next;
+        pos++;
+    }
+    cout << max_dist;
+    return 0;
+	
+	return 0;
+}
+
+var2
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main() {
+    vector<unsigned short> values;
+    vector<int> max_positions;
+
+    unsigned short value;
+    cin >> value;
+    values.push_back(value);
+
+    while (value != 0) {
+        cin >> value;
+        values.push_back(value);
+    }
+
+    for (int i = 1; i < values.size() - 1; i++) {
+        if (values[i] > values[i - 1] && values[i] > values[i + 1]) {
+            max_positions.push_back(i);
+        }
+    }
+
+    for (int i = 0; i < max_positions.size(); i++) {
+        cout << max_positions[i] << " ";
+    }
+    cout << endl;
+
+    int max_distance = 0;
+    for (int i = 1; i < max_positions.size(); i++) {
+        int distance = max_positions[i] - max_positions[i - 1];
+        if (distance > max_distance) {
+            max_distance = distance;
+        }
+    }
+
+    cout << max_distance << endl;
+
+    return 0;
+}
