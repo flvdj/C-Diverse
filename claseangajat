@@ -1,0 +1,423 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+ 
+class Angajat
+{
+protected:
+	string nume;
+	float salariu_baza;
+	float procent_marire;
+	string functie;
+	float procent_taxe_salariu;
+public:
+	Angajat() = default;
+ 
+ 
+	string get_nume()
+	{
+		return nume;
+	}
+ 
+	void set_functie(string _functie)
+	{
+		functie = _functie;
+	}
+ 
+	string get_functie()
+	{
+		return functie;
+	}
+ 
+	float getsalariu_baza()
+	{
+		return salariu_baza;
+	}
+ 
+	void set_procent(float procent)
+	{
+		procent_marire = procent;
+	}
+ 
+	float get_procent()
+	{
+		return procent_marire;
+	}
+ 
+	void setsalariu_baza(float _salariu)
+	{
+		salariu_baza = _salariu;
+	}
+ 
+	virtual float CalculSalariuBrut()
+	{
+		float brut = 0;
+		brut = salariu_baza;
+		return brut;
+	}
+	virtual float CalculSalariuNet()
+	{
+		float net = 0;
+		net = salariu_baza * (100 - procent_taxe_salariu) / 100;
+		return net;
+	}
+ 
+	~Angajat()
+	{
+	}
+ 
+	friend istream& operator>>(istream& input, Angajat& a);
+	friend ostream& operator<<(ostream& output, const Angajat& a);
+};
+istream& operator>>(istream& input, Angajat& a)
+{
+	input >> a.salariu_baza;
+	return input;
+}
+ostream& operator<<(ostream& output, const Angajat& a)
+{
+	output << a.nume << endl;
+	output << a.functie;
+	return output;
+}
+ 
+ 
+class Analist : public Angajat
+{
+public:
+	Analist() = default;
+	Analist(string _nume, string _functie)
+	{
+		nume = _nume;
+		functie = _functie;
+		salariu_baza = 0;
+		procent_taxe_salariu = 40;
+	}
+ 
+	~Analist()
+	{
+	}
+ 
+	friend istream& operator>>(istream& input, Analist& a);
+	friend ostream& operator<<(ostream& output, const Analist& a);
+};
+ 
+istream& operator>>(istream& input, Analist& a)
+{
+	input >> (Angajat&)a;
+	return input;
+}
+ostream& operator<<(ostream& output, const Analist& a)
+{
+	output << (Angajat&)a;
+	return output;
+}
+ 
+class Programator : public Analist
+{
+protected:
+	float procent_deducere_salariu_it;
+public:
+	Programator() = default;
+	Programator(string _nume, string _functie)
+	{
+		nume = _nume;
+		functie = _functie;
+		salariu_baza = 0;
+		procent_taxe_salariu = 40;
+		procent_deducere_salariu_it = 10;
+	}
+ 
+	float CalculSalariuNet()
+	{
+		float net = 0;
+		net = salariu_baza * (100 - procent_taxe_salariu + procent_deducere_salariu_it) / 100;
+		return net;
+	}
+ 
+	~Programator()
+	{
+		cout << "Destructor Programator"<<endl;
+	}
+ 
+	friend istream& operator>>(istream& input, Programator& p);
+	friend ostream& operator<<(ostream& output, const Programator& p);
+};
+ 
+istream& operator>>(istream& input, Programator& p)
+{
+	input >> (Angajat&)p;
+	return input;
+}
+ostream& operator<<(ostream& output, const Programator& p)
+{
+	output << (Angajat&)p;
+	return output;
+}
+ 
+ 
+class LiderEchipaProgramare : public Programator
+{
+private:
+	float bonus_vechime_functie;
+	int vechime_functie;
+public:
+	LiderEchipaProgramare() = default;
+	LiderEchipaProgramare(string _nume, string _functie)
+	{
+		nume = _nume;
+		functie = _functie;
+		salariu_baza = 0;
+		procent_taxe_salariu = 40;
+		procent_deducere_salariu_it = 10;
+		bonus_vechime_functie = 0;
+		vechime_functie = 0;
+	}
+ 
+	float CalculSalariuBrut() override
+	{
+		float brut = 0;
+		bonus_vechime_functie = 500 * vechime_functie;
+		brut = salariu_baza + bonus_vechime_functie;
+		return brut;
+	}
+ 
+	float CalculSalariuNet() override
+	{
+		float net = 0;
+		bonus_vechime_functie = 500 * vechime_functie;
+		net = (salariu_baza + 500 * vechime_functie) * (100 - procent_taxe_salariu + procent_deducere_salariu_it) / 100;
+		return net;
+	}
+ 
+	~LiderEchipaProgramare()
+	{
+	}
+ 
+	friend istream& operator>>(istream& input, LiderEchipaProgramare& l);
+	friend ostream& operator<<(ostream& output, const LiderEchipaProgramare& l);
+};
+istream& operator>>(istream& input, LiderEchipaProgramare& l)
+{
+	input >> (Angajat&)l;
+	input >> l.vechime_functie;
+	return input;
+}
+ostream& operator<<(ostream& output, const LiderEchipaProgramare& l)
+{
+	output << (Angajat&)l;
+	return output;
+}
+ 
+ 
+class FirmaProgramare
+{
+private:
+	Angajat** angajat;
+	int N;               //nr de angajati
+public:
+	FirmaProgramare()
+	{
+		angajat = NULL;
+		N = 0;
+	}
+	FirmaProgramare(int _N)
+	{
+		N = _N;
+		angajat = new Angajat * [_N];
+	}
+ 
+	~FirmaProgramare()
+	{
+		if (angajat)
+		{
+			cout << "Destructor Angajat"<<endl;
+			delete[]angajat;
+			angajat = NULL;
+		}
+	}
+ 
+	void schimbare_salarii()
+	{
+		for (int i = 0; i < N; i++)
+		{
+			cout << angajat[i]->get_nume()<<endl;
+			cout << "Salariu de baza vechi: " << angajat[i]->getsalariu_baza() << endl;
+			float salariu_nou = 0;
+			salariu_nou = angajat[i]->getsalariu_baza() + (float)(angajat[i]->getsalariu_baza() * (angajat[i]->get_procent()/100));
+			angajat[i]->setsalariu_baza(salariu_nou);
+			cout << "Salariu de baza nou: " << angajat[i]->getsalariu_baza();
+			if (i != N - 1)
+				cout << endl;
+		}
+	}
+ 
+	friend istream& operator>>(istream& input, FirmaProgramare& firma);
+	friend ostream& operator<<(ostream& output, FirmaProgramare& firma);
+};
+ 
+istream& operator>>(istream& input, FirmaProgramare& firma)
+{
+	string functie;
+	string nume;
+ 
+	for (int i = 0; i < firma.N; i++)
+	{
+		getline(input, nume);
+		getline(input, functie);
+		if (functie == "Programator")
+		{
+			firma.angajat[i] = new Programator(nume, functie);
+			cin >> (Programator&)*firma.angajat[i];
+			input.get();
+		}
+		if (functie == "Analist")
+		{
+			firma.angajat[i] = new Analist(nume, functie);
+			cin >> (Analist&)*firma.angajat[i];
+			input.get();
+		}
+		if (functie == "LiderEchipaProgramare")
+		{
+			firma.angajat[i] = new LiderEchipaProgramare(nume, functie);
+			cin >> (LiderEchipaProgramare&)*firma.angajat[i];
+			input.get();
+		}
+		//cout << nume<<" "<<functie<<endl;
+	}
+ 
+	return input;
+}
+ 
+ostream& operator<<(ostream& output, FirmaProgramare& firma)
+{
+	int cerinta;
+	cin >> cerinta;     //trb schimbat aici(in teorie) ca sa mearga problema cu alte stream-uri(cu exceptia cin)
+	if (cerinta == 1)
+	{
+		for (int i = 0; i < firma.N; i++)
+			output << *firma.angajat[i] << endl;
+	}
+	if (cerinta == 2)
+	{
+		for (int i = 0; i < firma.N; i++)
+		{
+			output << firma.angajat[i]->get_nume() << endl;
+			output << "Salariu brut: " << firma.angajat[i]->CalculSalariuBrut() << endl;
+			output << "Salariu net: " << firma.angajat[i]->CalculSalariuNet() << endl;
+		}
+	}
+	if (cerinta == 3)
+	{
+		cin.get();
+		for (int i = 0; i < 3; i++)
+		{
+			string functie;
+			float procent_marire;
+			cin >> functie >> procent_marire;
+ 
+			for (int k = 0; k < firma.N; k++)
+			{
+				if (firma.angajat[k]->get_functie() == functie)
+				{
+					firma.angajat[k]->set_procent(procent_marire);
+				}
+			}
+		}
+		firma.schimbare_salarii();
+	}
+	if (cerinta == 4)
+	{
+		string nume_angajat;
+		string functie_firma;
+		cin.get();
+		getline(cin, nume_angajat);
+		getline(cin, functie_firma);
+		for (int i = 0; i < firma.N; i++)
+		{
+			if (firma.angajat[i]->get_nume() == nume_angajat)
+			{
+				firma.angajat[i]->set_functie(functie_firma);
+			}
+		}
+ 
+ 
+		int ok_analist = 0, ok_programator = 0, ok_lider = 0;
+		for (int i = 0; i < firma.N; i++)
+		{
+			if (firma.angajat[i]->get_functie() == "Analist")
+			{
+				ok_analist = 1;
+			}
+			if (firma.angajat[i]->get_functie() == "Programator")
+			{
+				ok_programator = 1;
+			}
+			if (firma.angajat[i]->get_functie() == "LiderEchipaProgramare")
+			{
+				ok_lider = 1;
+			}
+		}
+ 
+		if (ok_analist == 0)
+			cout << "Destructor Analist"<<endl;
+		if (ok_programator == 0)
+			cout << "Destructor Programator"<<endl;
+		if (ok_lider == 0)
+			cout << "Destructor LiderEchipaProgramare"<<endl;
+ 
+ 
+		for (int i = 0; i < firma.N; i++)
+		{
+			if (ok_analist == 0)
+			{
+				((Analist*)firma.angajat[i])->~Analist();
+			}
+			if (ok_programator == 0)
+			{
+				((Programator*)firma.angajat[i])->~Programator();
+			}
+			if (ok_lider == 0)
+			{
+				((LiderEchipaProgramare*)firma.angajat[i])->~LiderEchipaProgramare();
+			}
+		}
+ 
+		Angajat* a(*firma.angajat);
+ 
+		for (int i = 0; i < firma.N; i++)
+			firma.angajat[i]->~Angajat();
+ 
+		firma.~FirmaProgramare();
+ 
+		for (int i = 0; i < firma.N; i++)
+		{
+			output << a[i] << endl;
+		}
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+	}
+	return output;
+}
+ 
+ 
+int main()
+{
+	//ifstream cin("data.in");
+	int N;
+	cin >> N;
+	cin.get();
+	FirmaProgramare firma(N);
+	cin >> firma;
+	cout << firma;
+ 
+ 
+	return 0;
+}
