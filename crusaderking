@@ -1,0 +1,171 @@
+crusader kings
+
+#include<iostream>
+#include<string>
+#include<cmath>
+using namespace std;
+
+class Regat
+{
+protected:
+	string nume_reg;
+	int nrtrp;
+	string cultura;
+	string nume_suzeran;
+public:
+	Regat(string nume, int trp, string cult)
+	{
+		nrtrp = trp;
+		nume_reg = nume;
+		cultura = cult;
+		nume_suzeran = " ";
+	}
+	string get_numeRegat()
+	{
+		return nume_reg;
+	}
+	void set_numeSuzeran(string suz)
+	{
+		nume_suzeran = suz;
+	}
+	string get_numeSuzeran()
+	{
+		return nume_suzeran;
+	}
+	void set_trupe(int tr)
+	{
+		nrtrp = nrtrp + tr;
+	}
+	void Afisare()
+	{
+		cout << nume_reg << " " << nrtrp;
+	}
+	virtual int ofranda()
+	{
+		return 0;
+	}
+};
+class Bizantin :public Regat
+{
+protected:
+	int nrfix;
+public:
+	Bizantin(string nume,int nrtrp,string cult,int nrf) :Regat(nume,nrtrp,cult)
+	{
+		nrfix = nrf;
+	}
+	int ofranda()
+	{
+		nrtrp = nrtrp - nrfix;
+		return nrfix;
+	}
+};
+
+class Anglosaxon :public Regat
+{
+protected:
+	int procent;
+	int nrmin;
+public:
+	Anglosaxon(string nume, int nrtrp, string cult, int pr,int min) :Regat(nume, nrtrp, cult)
+	{
+		procent = pr;
+		nrmin = min;
+	}
+	int ofranda()
+	{
+		int x;
+		x = nrtrp;
+		if (nrmin > ((50 * nrtrp) / 100))
+		{
+			nrtrp = nrtrp - ((50 * nrtrp) / 100);
+			return x/2;
+		}
+		else
+			if (((procent * nrtrp) / 100) > nrmin)
+			{
+				nrtrp = nrtrp - ((procent * nrtrp) / 100);
+				return ((procent * x) / 100);
+			}
+			else
+			{
+				nrtrp = nrtrp - nrmin;
+				return nrmin;
+			}
+	}
+
+};
+
+class Franc :public Regat
+{
+protected:
+	int procent;
+public:
+	Franc(string nume, int nrtrp, string cult, int pr) :Regat(nume, nrtrp, cult)
+	{
+		procent = pr;
+	}
+	int ofranda()
+	{
+		int x;
+		x = nrtrp;
+		nrtrp = nrtrp - ((procent * nrtrp) / 100);
+		return ((procent * x) / 100);
+	}
+};
+
+
+int main()
+{
+	int N, M;
+	cin >> N >> M;
+	Regat** listrg = new Regat* [N];
+	for (int i = 0; i < N; i++)
+	{
+		string nume;
+		int trupe;
+		string cultura;
+		int procent, nrfix, nrmin;
+		cin >> nume>>trupe>>cultura;
+		if (cultura == "BYZANTINE")
+		{
+			cin >> nrfix;
+			listrg[i] = new Bizantin(nume, trupe, cultura, nrfix);
+		}
+		if (cultura == "FRANK")
+		{
+			cin >> procent;
+			listrg[i] = new Franc(nume, trupe, cultura, procent);
+		}
+		if (cultura == "ANGLO-SAXON")
+		{
+			cin >> procent>>nrmin;
+			listrg[i] = new Anglosaxon(nume, trupe, cultura, procent,nrmin);
+		}
+	}
+	for (int i = 0; i < M; i++)
+	{
+		string vasal, suzeran;
+		cin >> vasal >> suzeran;
+		for (int j = 0; j < N; j++)
+			if (listrg[j]->get_numeRegat() == vasal)
+				listrg[j]->set_numeSuzeran(suzeran);
+	}
+	for (int i = 0; i < N; i++)
+	{
+		if (listrg[i]->get_numeSuzeran() != " ")
+		{
+			for(int j=0;j<N;j++)
+				if (listrg[i]->get_numeSuzeran() == listrg[j]->get_numeRegat())
+				{
+					listrg[j]->set_trupe(listrg[i]->ofranda());
+				}
+		}
+	}
+	for (int i = 0; i < N; i++)
+	{
+		listrg[i]->Afisare();
+		cout << endl;
+	}
+	return 0;
+}
