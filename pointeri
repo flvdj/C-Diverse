@@ -1,0 +1,42 @@
+class MyVector {
+private:
+    int* data;      // pointer către array-ul de elemente
+    int size;       // dimensiunea vectorului
+    int capacity;   // capacitatea curentă a vectorului
+
+public:
+    MyVector() {
+        data = nullptr;
+        size = 0;
+        capacity = 0;
+    }
+
+    ~MyVector() {
+        delete[] data;
+    }
+
+    void push_back(int element) {
+        if (size == capacity) {
+            // Dacă capacitatea nu este suficientă, realocăm memoria
+            int newCapacity = (capacity == 0) ? 1 : capacity * 2;
+            int* newData = new int[newCapacity];
+
+            // Copiem elementele existente în noul array
+            for (int i = 0; i < size; i++) {
+                newData[i] = data[i];
+            }
+
+            // Eliberăm memoria veche
+            delete[] data;
+
+            // Actualizăm pointerul și capacitatea
+            data = newData;
+            capacity = newCapacity;
+        }
+
+        // Adăugăm elementul la sfârșitul vectorului
+        data[size] = element;
+        size++;
+    }
+};
+
