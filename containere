@@ -1,0 +1,411 @@
+obiecte triunghi
+
+#define _USE_MATH_DEFINES
+#include <cmath>
+
+#define Ld1 100
+#define Ld2 1000
+#define Ld3 5000
+#define Ld4 10000
+
+
+using namespace std;
+
+struct coord2D
+{
+    double x;
+    double y;
+};
+
+istream& operator>>(istream& is, coord2D& c)
+{
+    is>>c.x>>c.y;
+
+    return is;
+}
+
+ostream& operator<<(ostream& os, const coord2D& c)
+{
+    os<<"( "<<c.x<<" , "<<c.y<<" )";
+
+    return os;
+}
+
+class forma
+{
+    protected:
+        int nrVf;
+        coord2D* vf = nullptr;
+        double densitate;
+        int material; // codat: 0=plastic, 1=Al, 2=Fe
+        double arie;
+        bool fl_fabricat = true;
+
+    public:
+
+        forma() = default;
+
+        forma(int nrV)
+        {
+            nrVf = nrV;
+            vf = new coord2D[nrVf];
+        }
+
+        forma(int nrV, coord2D* v)
+        {
+            nrVf = nrV;
+            vf = new coord2D[nrVf];
+
+            for(int i=0; i<nrVf; i++)
+                vf[i] = v[i];
+        }
+
+        forma(const forma& f)
+        {
+            nrVf = f.nrVf;
+            vf = new coord2D[nrVf];
+
+            for(int i=0; i<nrVf; i++)
+                vf[i] = f.vf[i];
+        }
+
+        virtual ~forma()
+        {
+            if(vf)
+                delete[] vf;
+        }
+
+        virtual double calculArie() = 0;
+        virtual string getTip() = 0;
+
+        void calculDensitate(double& p1, double& p2, double& g)
+        {
+            arie = calculArie();
+
+            if( arie < p1 )
+            {
+                densitate = Ld2;
+
+                if(arie*densitate > g)
+                {
+                    densitate = g /arie;
+                    if(densitate < Ld1)
+                        fl_fabricat = false;
+                }
+                material = 0;
+            }
+            else
+                if(arie < p2)
+                {
+                    densitate = Ld3;
+
+                    if(arie*densitate > g)
+                    {
+                        densitate = g /arie;
+                        if(densitate < Ld2)
+                            fl_fabricat = false;
+                    }
+                    material = 1;
+                }
+                else
+                {
+                    densitate = Ld4;
+
+                    if(arie*densitate > g)
+                    {
+                        densitate = g /arie;
+                        if(densitate < Ld3)
+                            fl_fabricat = false;
+                    }
+                    material = 2;
+                }
+        }
+
+        double calculCost()
+        {
+            if(!fl_fabricat)
+                return 0;
+            if(material==0)
+                return 10*densitate*arie;
+            if(material==1)
+                return 50*densitate*arie;
+
+            return 100*densitate*arie;
+        }
+
+        bool getFlFabricat()
+        {
+            return fl_fabricat;
+        }
+
+        friend istream& operator>>(istream& is, forma& f);
+        friend ostream& operator<<(ostream& is, const forma& f);
+};
+
+istream& operator>>(istream& is, forma& f)
+{
+    for(int i=0; i<f.nrVf; i++)
+        is>>f.vf[i];
+
+    return is;
+}
+
+ostream& operator<<(ostream& os, const forma& f)
+{
+    for(int i=0; i<f.nrVf; i++)
+        os<<f.vf[i]<<" ";
+
+    return os;
+}
+
+class triunghi : public forma
+{
+    public:
+        triunghi():forma(3)
+        {
+        }
+
+        triunghi(coord2D* v) : forma(3,v)
+        {
+        }
+
+        triunghi(const triunghi& c) : forma(c)
+        {
+        }
+
+        double calculArie()
+        {
+            double baza = vf[1].x - vf[0].x;
+            double h = vf[2].y - vf[1].y;
+
+            return baza*h/2;    // arie = baza*h/2;
+        }
+
+        string getTip()
+        {
+            return string("Triunghi");
+        }
+
+        friend istream& operator>>(istream& is, triunghi& t);
+        friend ostream& operator<<(ostream& os, const triunghi& t);
+};
+
+istream& operator>>(istream& is, triunghi& f)
+{
+    f.nrVf=3;
+    is >> (forma&)f;
+
+    return is;
+}
+
+ostream& operator<<(ostream& os, const triunghi& t)
+{
+    os << "Triunghi: " << (forma&)t;
+
+    return os;
+}
+
+class dreptunghi : public forma
+{
+    public:
+        dreptunghi(): forma(4)
+        {
+        }
+
+        dreptunghi(coord2D* v) : forma(4,v)
+        {
+        }
+
+        dreptunghi(const dreptunghi& c):forma(c)
+        {
+        }
+
+        double calculArie()
+        {
+            double L = vf[1].x - vf[0].x;
+            double l = vf[2].y - vf[1].y;
+
+            return L*l;    // arie = L*l;
+        }
+
+        string getTip()
+        {
+            return string("Dreptunghi");
+        }
+
+
+        friend istream& operator>>(istream& is, dreptunghi& t);
+        friend ostream& operator<<(ostream& os, const dreptunghi& t);
+};
+
+istream& operator>>(istream& is, dreptunghi& f)
+{
+    f.nrVf=4;
+
+    is >> (forma&)f;
+
+    return is;
+}
+
+ostream& operator<<(ostream& os, const dreptunghi& t)
+{
+    os << "Dreptunghi: " << (forma&)t;
+
+    return os;
+}
+
+class patrat : public dreptunghi
+{
+    public:
+        patrat():dreptunghi()
+        {
+        }
+
+        patrat(coord2D* v) : dreptunghi(v)
+        {
+        }
+
+        patrat(const patrat& c) : dreptunghi(c)
+        {
+        }
+
+        double calculArie()
+        {
+            return dreptunghi::calculArie();
+        }
+
+        string getTip()
+        {
+            return string("Patrat");
+        }
+
+        friend istream& operator>>(istream& is, patrat& t);
+        friend ostream& operator<<(ostream& os, const patrat& t);
+};
+
+istream& operator>>(istream& is, patrat& t)
+{
+    is >> (dreptunghi&)t;
+
+    return is;
+}
+
+ostream& operator<<(ostream& os, const patrat& t)
+{
+    os <<"Patrat: "<< (dreptunghi&)t;
+
+    return os;
+}
+
+class cerc : public forma
+{
+        double raza;
+    public:
+        cerc():forma(1)
+        {
+        }
+
+        cerc(coord2D* c, double r) : forma(1,c)
+        {
+            raza = r;
+        }
+
+        cerc(const cerc& c) : forma(c)
+        {
+            raza = c.raza;
+        }
+
+        double calculArie()
+        {
+            return M_PI*raza*raza;
+        }
+
+        string getTip()
+        {
+            return string("Cerc");
+        }
+
+        friend istream& operator>>(istream& is, cerc& t);
+        friend ostream& operator<<(ostream& os, const cerc& t);
+};
+
+istream& operator>>(istream& is, cerc& f)
+{
+    f.nrVf=1;
+
+    is >> (forma&)f;
+
+    is >> f.raza;
+
+    return is;
+}
+
+ostream& operator<<(ostream& os, const cerc& t)
+{
+    os << "Cerc: " << (forma&)t;
+
+    os << t.raza;
+
+    return os;
+}
+
+
+int main()
+{
+    ifstream cin("data.in");
+
+    double p1,p2,g;
+    int no,i,tip;
+
+    forma* listaOb[20];
+
+    cin >> p1 >> p2 >> g >> no;
+
+    for(i=0; i<no; i++)
+    {
+        cin >> tip;
+
+        switch(tip)
+        {
+            case 1: listaOb[i] = new triunghi;
+                    cin >> (triunghi&)*listaOb[i];
+                    cout << (triunghi&)*listaOb[i] << endl;;
+                    break;
+
+            case 2: listaOb[i] = new dreptunghi;
+                    cin >> (dreptunghi&)*listaOb[i];
+                    cout << (dreptunghi&)*listaOb[i] << endl;
+                    break;
+
+            case 3: listaOb[i] = new patrat;
+                    cin >> *(patrat*)listaOb[i];
+                    cout << *(patrat*)listaOb[i] << endl;
+                    break;
+
+            case 4: cerc c;
+                    cin >> c;
+                    listaOb[i] = new cerc(c);
+                    cout << (cerc&)*listaOb[i] << endl;
+                    break;
+        }
+    }
+
+    double cost = 0;
+    for(i=0; i<no; i++)
+    {
+        listaOb[i]->calculDensitate(p1, p2, g);
+
+        cost+=listaOb[i]->calculCost();
+    }
+
+    cout<<endl<<"Costul total: "<<cost<<endl<<endl;
+
+    cout<<"Lista obiecte care nu se fabrica:"<<endl;
+    for(i=0; i<no; i++)
+    {
+        if( ! listaOb[i]->getFlFabricat() )
+            cout<<"obiect nr "<< i << " de tipul: " << listaOb[i]->getTip()<<endl;
+    }
+
+    return 0;
+}
