@@ -1,0 +1,151 @@
+#include <iostream>
+#include <fstream>
+#include <cstring>
+
+using namespace std;
+
+struct dataC  // class
+{
+    int zi;
+    int luna;
+    int an;
+
+    friend istream& operator>>(istream& is, dataC& dc);
+    friend ostream& operator<<(ostream& os, const dataC& dc);
+};
+
+istream& operator>>(istream& is, dataC& dc)
+{
+    is>>dc.zi>>dc.luna>>dc.an;
+
+    return is;
+}
+
+ostream& operator<<(ostream& os, const dataC& dc)
+{
+    os<<dc.zi<<"."<<dc.luna<<"."<<dc.an;
+
+    return os;
+}
+
+
+class Persoana
+{
+        char nume[20];  // private
+        char prenume[20];
+        dataC dataN;
+
+    public:
+        Persoana()=default;
+
+        Persoana(char* nm, char* pren, dataC dn)
+        {
+            strcpy(nume, nm);
+            strcpy(prenume, pren);
+            dataN = dn;
+        }
+
+        bool operator==(char* nm)
+        {
+            return !strcmp(nume,nm);
+        }
+
+        friend istream& operator>>(istream& is, Persoana& p);
+        friend ostream& operator<<(ostream& os, const Persoana& p);
+};
+
+istream& operator>>(istream& is, Persoana& p)
+{
+    is>>p.nume>>p.prenume>>p.dataN;
+
+    return is;
+}
+
+ostream& operator<<(ostream& os, const Persoana& p)
+{
+    os<<p.nume<<" "<<p.prenume<<" "<<p.dataN;
+
+    return os;
+}
+
+class Contact : public Persoana
+{
+        char nrT[11];
+        char adrEmail[25];
+
+    public:
+        Contact()=default;
+
+        Contact(char* nm, char* pren, dataC dn, char* nt, char* ae) : Persoana(nm, pren, dn)
+        {
+            strcpy(nrT, nt);
+            strcpy(adrEmail, ae);
+        }
+
+        bool operator==(char* nt)
+        {
+            return !strcmp(nrT, nt);
+        }
+
+        char* getNrT()
+        {
+            return nrT;
+        }
+
+        friend istream& operator>>(istream& is, Contact& c);
+        friend ostream& operator<<(ostream& os, const Contact& c);
+
+};
+
+istream& operator>>(istream& is, Contact& c)
+{
+    is>>(Persoana&)c;  // Contact&  -> Persoana&   ClsD& -> ClsB&
+    is>>c.nrT>>c.adrEmail;
+
+    return is;
+}
+
+ostream& operator<<(ostream& os, const Contact& c)
+{
+    os<<(Persoana&)c;  // Contact&  -> Persoana&   ClsD& -> ClsB&
+    os<<" "<<c.nrT<<" "<<c.adrEmail;
+
+    return os;
+}
+
+
+int main()
+{
+    //ifstream cin("data.in");
+
+    int NC,i;
+
+    cin>>NC;
+
+    Contact* AgendaT;
+
+    AgendaT = new Contact[NC];
+
+    for(i=0;i<NC;i++)
+        cin>>AgendaT[i];
+
+     for(i=0;i<NC;i++)
+        cout<<AgendaT[i]<<endl;
+
+
+    char* nm = "Ionescu";
+    cout<<endl<<"Numerele de telefon pentru persoana cu numele: "<<nm<<" sunt:"<<endl;
+    for(i=0;i<NC;i++)
+        if((Persoana)AgendaT[i]==nm)  //if(AgendaT[i].Persoana::operator==(nm) )
+            cout<<AgendaT[i].getNrT()<<endl;
+
+    char* nt = "0744614229";
+    cout<<endl<<"Persoana cu nr de telefon : "<<nt<<" este:"<<endl;
+    for(i=0;i<NC;i++)
+        if(AgendaT[i]==nt) // ?
+            cout<<(Persoana)AgendaT[i]<<endl;
+
+    delete[] AgendaT;
+
+    return 0;
+}
