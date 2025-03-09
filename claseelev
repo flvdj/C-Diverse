@@ -1,0 +1,78 @@
+#include<iostream>
+#include<string>
+#include<cmath>
+using namespace std;
+class Elev
+{
+protected:
+	string Nume;
+	string Prenume;
+	double nAdmitere;
+	double nM;
+	double nR;
+public:
+	bool operator<(const Elev& E1)
+	{
+		if (nAdmitere < E1.nAdmitere)
+			return true;
+		else if (nAdmitere == E1.nAdmitere)
+		{
+			if (nM < E1.nM)
+				return true;
+			else if (nM == E1.nM)
+			{
+				if (nR < E1.nR)
+					return true;
+			}
+		}
+			return false;
+	}
+	bool operator==(const Elev& E1) const {
+		if (nAdmitere == E1.nAdmitere && nM == E1.nM && nR == E1.nR) return true;
+		return false;
+	}
+	friend istream& operator>>(istream& is, Elev& E1) {
+		is >> E1.Nume >> E1.Prenume >> E1.nAdmitere >> E1.nM >> E1.nR;
+		return is;
+	}
+	friend ostream& operator<<(ostream& os, const Elev& E1) {
+		os << E1.Nume << " " << E1.Prenume;
+		return os;
+	}
+		
+};
+int main()
+{
+	int NE;
+	cin >> NE;
+	Elev* elevi=new Elev[NE];
+	for (int i = 0; i < NE-1; i++)
+	{
+		cin >> elevi[i];
+		
+	}
+	for (int i = 0; i < NE - 1; i++) {
+		for (int j = i + 1; j < NE; j++) {
+			if (elevi[j] < elevi[i]) {
+				Elev aux = elevi[i];
+				elevi[i] = elevi[j];
+				elevi[j] = aux;
+			}
+		}
+	}
+	int loc = 1;
+	cout << "Locul 1:" <<'\n'<< elevi[0] << '\n';
+	for (int i = 1; i < NE; i++) {
+		if (elevi[i] == elevi[i - 1]) {
+			cout << elevi[i] << '\n';
+		}
+		else {
+			loc = loc + 1;
+			if (loc > 3) 
+				break;
+			cout << "Locul " << loc << ":" << '\n' << elevi[i] << '\n';
+		}
+	}
+	return 0;
+
+}
