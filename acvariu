@@ -1,0 +1,359 @@
+#include<iostream>
+#include <string>
+#include<cmath>
+#include<iomanip>
+
+using namespace std;
+double M_PI = 3.14;
+class Acvariu
+{
+protected:
+	int zi;
+	double pret;
+	double grosime;
+public:
+	Acvariu(int zip,double pretp,double grosimep)
+	{
+		zi = zip;
+		pret = pretp;
+		grosime = grosimep;
+	}
+	Acvariu()
+	{
+		zi = 0;
+		pret = 0;
+		grosime = 0;
+	}
+	virtual double durata()
+	{
+		return 0;
+	}
+	virtual double pretclient()
+	{
+		return 0;
+	}
+	virtual double profit()
+	{
+		return 0;
+	}
+	virtual double costprd()
+	{
+		return 0;
+	}
+};
+class Sfera:public Acvariu
+{
+private:
+	double raza;
+public:
+	Sfera(double r, double pretp, double grosimep, int zip) :Acvariu(pretp, grosimep, zip)
+	{
+		raza = r;
+	}
+	double durata()
+	{
+		return raza * raza * raza + 20;
+	}
+	double pretclient()
+	{
+		return pret * (4.0 / 3.0) * M_PI * raza * raza * raza;
+	}
+	double profit()
+	{
+		return (pret * (4.0 / 3.0) * M_PI * raza * raza * raza) - (grosime * pret * 4 * M_PI * raza * raza);
+	}
+	double costprd()
+	{
+		return grosime * pret * 4 * M_PI * raza * raza;
+	}
+};
+class Cub:public Acvariu
+{
+private:
+	double latura;
+public:
+	Cub(double l, double pretp, double grosimep, int zip) :Acvariu(pretp, grosimep, zip)
+	{
+		latura = l;
+	}
+	double durata()
+	{
+		return latura*latura*latura*grosime+10;
+	}
+	double pretclient()
+	{
+		return pret *latura*latura*latura;
+	}
+	double profit()
+	{
+		return (pret * latura * latura * latura)-(grosime*pret*latura*latura*6);
+	}
+	double costprd()
+	{
+		return grosime * pret * latura * latura * 6;
+	}
+
+};
+class Cilindru:public Acvariu
+
+{
+private:
+	double raza;
+	double inaltime;
+public:
+	Cilindru(double r, double height,double pretp, double grosimep, double zip) :Acvariu(pretp, grosimep, zip)
+	{
+		raza = r;
+		inaltime = height;
+	}
+	double durata()
+	{
+		return M_PI*raza*raza+inaltime*5;
+	}
+	double pretclient()
+	{
+		return pret * M_PI * raza * raza*inaltime;
+	}
+	double profit()
+	{
+		return (pret * M_PI * raza * raza * inaltime)-grosime*pret*(2*M_PI*raza*inaltime+2*M_PI*raza*raza);
+	}
+	double costprd()
+	{
+		return grosime * pret * (2 * M_PI * raza * inaltime + 2 * M_PI * raza * raza);
+	}
+	
+};
+int main()
+{
+	int n,aux,zile;
+	cin >> n;
+	double maxi = 0;
+	Acvariu** listaac = new Acvariu * [n];
+	for (int i = 0; i < n; i++)
+	{
+		double grosime, pret, latura, raza, inaltime;
+		int zi;
+		string tip;
+		cin >>zi>> pret >> tip;
+		if (tip == "CUB")
+		{
+			cin >> latura>>grosime;
+			listaac[i] = new Cub(latura, zi, pret,grosime);
+				double costprd = listaac[i]->costprd();
+				if (costprd > maxi)
+				{
+					maxi = costprd;
+					aux = i + 1;
+				}
+		}
+		if (tip == "SFERA")
+		{
+			cin >> raza>>grosime;
+			listaac[i] = new Sfera(raza, zi, pret, grosime);
+			double costprd = listaac[i]->costprd();
+			if (costprd > maxi) 
+			{
+				maxi = costprd;
+				aux = i + 1;
+			}
+		}
+		if (tip == "CILINDRU")
+		{
+			cin >>inaltime>>raza>>grosime;
+			listaac[i] = new Cilindru(raza,inaltime, zi, pret, grosime);
+			double costprd = listaac[i]->costprd();
+			if (costprd > maxi)
+			{
+				maxi = costprd;
+				aux = i + 1;
+			}
+
+		}
+		
+		
+	}
+	cin >> zile;
+	cout << fixed << setprecision(2) <<aux  << endl;
+	return 0;
+}
+///////////////////////////////////////////////////////////
+
+
+#include<iostream>
+#include <string>
+#include<cmath>
+#include<iomanip>
+
+using namespace std;
+double M_PI = 3.14;
+class Acvariu
+{
+protected:
+	int zi;
+	double pret;
+	double grosime;
+public:
+	Acvariu(int zip,double pretp,double grosimep)
+	{
+		zi = zip;
+		pret = pretp;
+		grosime = grosimep;
+	}
+	Acvariu()
+	{
+		zi = 0;
+		pret = 0;
+		grosime = 0;
+	}
+	double ziua()
+	{
+		return zi;
+	}
+	virtual double durata()
+	{
+		return 0;
+	}
+	virtual double pretclient()
+	{
+		return 0;
+	}
+	virtual double profit()
+	{
+		return 0;
+	}
+	virtual double costprd()
+	{
+		return 0;
+	}
+};
+class Sfera:public Acvariu
+{
+private:
+	double raza;
+public:
+	Sfera(double r, double pretp, double grosimep, int zip) :Acvariu(pretp, grosimep, zip)
+	{
+		raza = r;
+	}
+	double durata()
+	{
+		return raza * raza * raza + 20;
+	}
+	double pretclient()
+	{
+		return pret * (4.0 / 3.0) * M_PI * raza * raza * raza;
+	}
+	double profit()
+	{
+		return (pret * (4.0 / 3.0) * M_PI * raza * raza * raza) - (grosime * pret * 4 * M_PI * raza * raza);
+	}
+	double costprd()
+	{
+		return grosime * pret * 4 * M_PI * raza * raza;
+	}
+};
+class Cub:public Acvariu
+{
+private:
+	double latura;
+public:
+	Cub(double l, double pretp, double grosimep, int zip) :Acvariu(pretp, grosimep, zip)
+	{
+		latura = l;
+	}
+	double durata()
+	{
+		return latura*latura*latura*grosime+10;
+	}
+	double pretclient()
+	{
+		return pret *latura*latura*latura;
+	}
+	double profit()
+	{
+		return (pret * latura * latura * latura)-(grosime*pret*latura*latura*6);
+	}
+	double costprd()
+	{
+		return grosime * pret * latura * latura * 6;
+	}
+
+};
+class Cilindru:public Acvariu
+
+{
+private:
+	double raza;
+	double inaltime;
+public:
+	Cilindru(double r, double height,double pretp, double grosimep, double zip) :Acvariu(pretp, grosimep, zip)
+	{
+		raza = r;
+		inaltime = height;
+	}
+	double durata()
+	{
+		return M_PI*raza*raza+inaltime*5;
+	}
+	double pretclient()
+	{
+		return pret * M_PI * raza * raza*inaltime;
+	}
+	double profit()
+	{
+		return (pret * M_PI * raza * raza * inaltime)-grosime*pret*(2*M_PI*raza*inaltime+2*M_PI*raza*raza);
+	}
+	double costprd()
+	{
+		return grosime * pret * (2 * M_PI * raza * inaltime + 2 * M_PI * raza * raza);
+	}
+	
+};
+int main()
+{
+	int n,aux,zile;
+	cin >> n;
+	double maxi = 0;
+	Acvariu** listaac = new Acvariu * [n];
+	for (int i = 0; i < n; i++)
+	{
+		double grosime, pret, latura, raza, inaltime;
+		int zi;
+		string tip;
+		cin >>pret>> zi >> tip;
+		if (tip == "CUB")
+		{
+			cin >> latura>>grosime;
+			listaac[i] = new Cub(latura, zi, pret,grosime);
+				
+			
+		}
+		if (tip == "SFERA")
+		{
+			cin >> raza>>grosime;
+			listaac[i] = new Sfera(raza, zi, pret, grosime);
+			
+		
+		}
+		if (tip == "CILINDRU")
+		{
+			cin >>inaltime>>raza>>grosime;
+			listaac[i] = new Cilindru(raza,inaltime, zi, pret, grosime);
+		}
+		
+		
+	}
+	cin >> zile;
+	double profit = 0;
+	for (int i = 0; i < n; i++)
+	{
+		if (listaac[i]->ziua() + listaac[i]->durata() <= zile)
+		{
+			profit = profit + listaac[i]->profit();
+		}
+	}
+	cout << fixed << setprecision(2) <<profit  << endl;
+	return 0;
+}
+
