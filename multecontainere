@@ -1,0 +1,349 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+#include <iomanip>
+using namespace std;
+
+class Container
+{
+protected:
+	double densitate;
+public:
+	Container(double D1)
+	{
+		densitate = D1;
+	}
+	Container()
+	{
+		densitate = 0;
+	}
+
+	virtual double masa()
+	{
+	return 0;
+	}
+};
+class Paralelipiped : public Container {
+private:
+	double latura;
+	double latime;
+	double inaltime;
+public:
+	Paralelipiped(double lat, double wide, double height, double D1): Container(D1)
+	{
+		latura = lat;
+		latime = wide;
+		inaltime = height;
+	}
+
+	double masa()
+	{
+		return 2 * (latura * latime + latime * inaltime + latura * inaltime) * densitate ;
+	}
+
+};
+class Cub : public Container {
+private:
+	double latura;
+public:
+	Cub(double lat, double D1) :Container(D1)
+	{
+		latura = lat;
+	}
+	double masa()
+	{
+		return latura * latura * 6 *1* densitate;
+	}
+
+};
+class Cilindru :public Container {
+private:
+	double raza;
+	double inaltime;
+public:
+	Cilindru(double r, double height, double D1) :Container(D1)
+	{
+		raza = r;
+		inaltime = height;
+
+	}
+	double masa()
+	{
+		return (2 * M_PI * raza * inaltime + 2 * M_PI * raza * raza)* densitate;
+	}
+};
+class Sfera :public Container {
+private:
+	double raza;
+public:
+	Sfera(double r, double D1) : Container(D1)
+	{
+		raza = r;
+	}
+	double masa()
+	{
+		return (4* M_PI * raza * raza)*1* densitate;
+	}
+};
+int main()
+{
+	int n;
+	cin >> n;
+	double maxi = 0;
+	Container**listact=new Container*[n];
+	for (int i = 0; i < n; i++)
+	{
+		double densitate, latura, latime, inaltime, raza;
+		string tip;
+		cin >> densitate >> tip;
+		
+		if (tip == "PARALELIPIPED")
+		{
+			cin >> latura >> latime >> inaltime;
+			listact[i] = new Paralelipiped(latura, latime, inaltime,densitate);
+			
+			double masa = listact[i]->masa();
+			if (masa > maxi)
+				maxi = masa;
+		}
+		else if (tip == "CUB")
+		{
+			cin >> latura;
+			listact[i] = new Cub(latura, densitate);
+				double masa = listact[i]->masa();
+			if (masa > maxi)
+				maxi = masa;
+		}
+		else if (tip == "CILINDRU") {
+			cin >> latura >> raza;
+				listact[i] = new Cilindru(latura, raza,densitate);
+				double masa = listact[i]->masa();
+			if (masa > maxi)
+				maxi = masa;
+		}
+		else if (tip == "SFERA") {
+			cin >> raza;
+					listact[i] = new Sfera(raza, densitate);
+				double masa = listact[i]->masa();
+			if (masa > maxi) 
+				maxi = masa;
+		}
+
+	}
+	cout << fixed << setprecision(3) << maxi << endl;
+	return 0;
+}
+
+PROBLEMA B
+
+#include <iostream>
+#include <string>
+#include <cmath>
+#include <iomanip>
+using namespace std;
+
+class Container
+{
+protected:
+	double densitate;
+	double densitate2;
+public:
+	double masatot = 0.0;
+	Container(double D1, double D2)
+	{
+		densitate = D1;
+		densitate2 = D2;
+	}
+	Container()
+	{
+		densitate = 0.0;
+		densitate2 = 0.0;
+		masatot = 0.0;
+	}
+	void SetMasa()
+	{
+		masatot = masatotala();
+	}
+	double GetMasa()
+	{
+		return masatot;
+	}
+
+	virtual double masatotala()
+	{
+		return 0;
+	}
+	friend void operator>(Container& a, Container& b);
+};
+class Paralelipiped : public Container {
+private:
+	double latura=0.0;
+	double latime=0.0;
+	double inaltime=0.0;
+public:
+	Paralelipiped(double lat, double wide, double height, double D1, double D2) : Container(D1, D2)
+	{
+		latura = lat;
+		latime = wide;
+		inaltime = height;
+	}
+
+
+
+	double masatotala()
+	{
+		double a, b, c;
+		a = 2 * (latura * latime + latime * inaltime + latura * inaltime) * densitate;
+		b = latura * latime * inaltime * densitate2;
+		c = b / 5.0;
+		if (a < c)
+		{
+			a = c;
+		}
+		return a + b;
+	}
+
+};
+class Cub : public Container {
+private:
+	double latura=0.0;
+public:
+	Cub(double lat, double D1, double D2) :Container(D1, D2)
+	{
+		latura = lat;
+	}
+
+	double masatotala()
+	{
+		double a, b, c;
+		a = latura * latura * 6 * 1 * densitate;
+		b = latura * latura * latura * densitate2;
+		c = b / 5.0;
+		if (a < c)
+		{
+			a = c;
+		}
+		return a + b;
+	}
+
+};
+class Cilindru :public Container {
+private:
+	double raza=0.0;
+	double inaltime=0.0;
+public:
+	Cilindru(double r, double height, double D1, double D2) :Container(D1, D2)
+	{
+		raza = r;
+		inaltime = height;
+
+	}
+
+	double masatotala()
+	{
+		double a, b, c;
+		a = (2 * M_PI * raza * inaltime + 2 * M_PI * raza * raza) * densitate;
+		b = M_PI * raza * raza * inaltime * densitate2;
+		c = b / 5.0;
+		if (a < c)
+		{
+			a = c;
+		}
+		return a + b;
+	}
+};
+class Sfera :public Container {
+private:
+	double raza;
+public:
+	Sfera(double r, double D1, double D2) : Container(D1, D2)
+	{
+		raza = r;
+	}
+
+	double masatotala()
+	{
+		double a, b, c;
+		a = (4 * M_PI * raza * raza) * 1 * densitate;
+		b = M_PI * 4.0 / 3.0 * raza * raza * raza * densitate2;
+		c = b / 5.0;
+		if (a < c)
+		{
+			a = c;
+		}
+		return a + b;
+	}
+
+};
+void operator>(Container& a, Container& b)
+{
+	swap(a.masatot, b.masatot);
+}
+
+
+int main()
+{
+	int n;
+	cin >> n;
+	Container** listact = new Container * [n];
+
+
+	for (int i = 0; i < n; i++)
+
+	{
+		double densitate, densitate2 = 0.0, latura, latime, inaltime, raza;
+		string tip;
+		cin >> densitate >> densitate2 >> tip;
+
+		if (tip == "PARALELIPIPED")
+		{
+			cin >> latura >> latime >> inaltime;
+			listact[i] = new Paralelipiped(latura, latime, inaltime, densitate, densitate2);
+
+		}
+		else if (tip == "CUB")
+		{
+			cin >> latura;
+			listact[i] = new Cub(latura, densitate, densitate2);
+
+
+		}
+		else if (tip == "CILINDRU")
+		{
+			cin >> latura >> raza;
+			listact[i] = new Cilindru(latura, raza, densitate, densitate2);
+
+		}
+		else if (tip == "SFERA")
+		{
+			cin >> raza;
+			listact[i] = new Sfera(raza, densitate, densitate2);
+
+		}
+
+	}
+	for (int i = 0; i < n; i++)
+		listact[i]->SetMasa();
+	for (int i = 0; i < n - 1; i++)
+		for (int j = i; j <n;j++)
+		{
+			if (listact[i]->GetMasa() < listact[j]->GetMasa())
+				*listact[i] > *listact[j];
+		}
+		int j=n-1;
+	for (int i = 1; i <= (n/2-1); i=i+2)
+	{
+			*listact[i] > *listact[j];
+			j=j-2;
+	}
+
+	for (int i = 0; i < n; i++)
+		cout << fixed << setprecision(3) << listact[i]->GetMasa()<<" ";
+	for (int i = 0; i < n; i++)
+	{
+		delete listact[i];
+	}
+	delete[] listact;
+	return 0;
+}
+        
