@@ -1,0 +1,105 @@
+#include <iostream>
+#include <string>
+using namespace std;
+class Vagon
+{
+    private:
+    string tipvagon;
+    int nrbilete;
+    public:
+    Vagon(string tip, int bilete)
+    {
+        tipvagon=tip;
+        nrbilete=bilete;
+    }
+    Vagon()
+    {
+        tipvagon="Nedefinit";
+        nrbilete=0;
+    }
+    friend istream& operator>>(istream& is, Vagon& vag);
+    friend ostream& operator<<(ostream& os, Vagon& vag);
+    friend class Tren;
+};
+istream& operator>>(istream& is, Vagon& vag)
+{
+    is>>vag.tipvagon>>vag.nrbilete;
+    return is;
+}
+ostream& operator<<(ostream& os, Vagon& vag)
+{
+    os<<vag.tipvagon<<vag.nrbilete;
+    return os;
+}
+class Tren
+{
+    private:
+    string localitatePlecare;
+    string localitateSosire;
+    int idTren;
+    int nrTren;
+    Vagon* lista;
+    public:
+    
+    Tren(string locPlec, string locSos, int id, int nr)
+    {
+        localitatePlecare=locPlec;
+        localitateSosire=locSos;
+        idTren=id;
+        nrTren=nr;
+        lista=NULL;
+    }
+    Tren()
+    {
+        localitatePlecare=localitateSosire="Nedefinit";
+        idTren=0;
+        nrTren=0;
+        lista=NULL;
+        
+    }
+    int getnrbilete()
+    {
+        int sum=0;
+        for(int i=0;i<nrTren;i++)
+        sum=sum+lista[i].nrbilete;
+        
+        return sum;
+    }
+    int getidtren()
+    {
+        return idTren;
+    }
+    friend istream& operator>>(istream& is, Tren& tr);
+};
+    istream& operator>>(istream& is, Tren& tr)
+{
+    is>>tr.localitatePlecare>>tr.localitateSosire>>tr.idTren>>tr.nrTren;
+    tr.lista=new Vagon[tr.nrTren];
+    for(int i=0;i<tr.nrTren;i++)
+    {
+    is>>tr.lista[i];
+    }
+    return is;
+}
+
+
+int main()
+{
+    int n;
+    cin>>n;
+    Tren*listatr=new Tren[n];
+    for(int i=0;i<n;i++)
+    {
+        cin>>listatr[i];
+    }
+    int maxbilete=-1;
+    int idtren_max=-1;
+    for(int i=0;i<n;i++)
+    
+        if(listatr[i].getnrbilete()>maxbilete)
+        {
+        maxbilete=listatr[i].getnrbilete();
+        idtren_max=listatr[i].getidtren();
+    }
+    cout<<idtren_max;
+};
